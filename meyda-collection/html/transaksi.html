@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaksi - MeyDa Collection</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Input Transaksi</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="pelanggan.html">Pelanggan</a>
+        <a href="produk.html">Produk</a>
+        <a href="transaksi.html">Transaksi</a>
+        <a href="../php/tampil_transaksi.php">Laporan</a>
+    </nav>
+
+    <main>
+        <form action="../php/simpan_transaksi.php" method="POST">
+            <h2>Tambah Transaksi Baru</h2>
+
+            <label for="id_pelanggan">Pilih Pelanggan:</label>
+            <select id="id_pelanggan" name="id_pelanggan" required>
+                <option value="">-- Pilih Pelanggan --</option>
+                <!-- Hardcoded for HTML requirement. In a real app, use PHP/AJAX -->
+                <option value="1">Ani Lestari</option>
+                <option value="2">Budi Darmawan</option>
+                <option value="3">Citra Kirana</option>
+            </select>
+
+            <label for="id_produk">Pilih Produk:</label>
+            <select id="id_produk" name="id_produk" required>
+                <option value="">-- Pilih Produk --</option>
+                <!-- Hardcoded for HTML requirement -->
+                <option value="1">Kemeja Polos (Rp 150.000)</option>
+                <option value="2">Gamis Syari (Rp 250.000)</option>
+                <option value="3">Topi Baseball (Rp 75.000)</option>
+            </select>
+
+            <label for="jumlah">Jumlah Beli:</label>
+            <input type="number" id="jumlah" name="jumlah" required min="1" value="1">
+
+            <button type="submit">Simpan Transaksi</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 MeyDa Collection</p>
+    </footer>
+
+    <script src="../js/script.js"></script>
+</body>
+
+</html>
