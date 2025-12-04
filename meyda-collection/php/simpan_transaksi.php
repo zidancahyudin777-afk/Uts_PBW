@@ -11,8 +11,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $jumlah = $_POST['jumlah'];
     
     // Get Product Price
-    $query_harga = "SELECT harga FROM produk WHERE id_produk = '$id_produk'";
-    $result_harga = mysqli_query($koneksi, $query_harga);
+    $stmt_harga = mysqli_prepare($koneksi, "SELECT harga FROM produk WHERE id_produk = ?");
+    mysqli_stmt_bind_param($stmt_harga, "i", $id_produk);
+    mysqli_stmt_execute($stmt_harga);
+    $result_harga = mysqli_stmt_get_result($stmt_harga);
     $row_harga = mysqli_fetch_assoc($result_harga);
     $harga_satuan = $row_harga['harga'];
     
@@ -20,22 +22,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $total_harga = $subtotal; // For single item transaction
 
     // 1. Insert into transaksi
-    $query_transaksi = "INSERT INTO transaksi (id_user, id_pelanggan, total_harga) VALUES ('$id_user', '$id_pelanggan', '$total_harga')";
+    $stmt_transaksi = mysqli_prepare($koneksi, "INSERT INTO transaksi (id_user, id_pelanggan, total_harga) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt_transaksi, "iii", $id_user, $id_pelanggan, $total_harga);
     
-    if (mysqli_query($koneksi, $query_transaksi)) {
+    if (mysqli_stmt_execute($stmt_transaksi)) {
         $id_transaksi = mysqli_insert_id($koneksi); // Get the new ID
         
         // 2. Insert into detail_transaksi
-        $query_detail = "INSERT INTO detail_transaksi (id_transaksi, id_produk, jumlah, subtotal) VALUES ('$id_transaksi', '$id_produk', '$jumlah', '$subtotal')";
+        $stmt_detail = mysqli_prepare($koneksi, "INSERT INTO detail_transaksi (id_transaksi, id_produk, jumlah, subtotal) VALUES (?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt_detail, "iiii", $id_transaksi, $id_produk, $jumlah, $subtotal);
         
-        if (mysqli_query($koneksi, $query_detail)) {
-             echo "<script>alert('Transaksi berhasil disimpan!'); window.location.href='../html/transaksi.html';</script>";
+        if (mysqli_stmt_execute($stmt_detail)) {
+             echo "<script>alert('Transaksi berhasil disimpan!'); window.location.href='../transaksi.php';</script>";
         } else {
-            echo "Error Detail: " . $query_detail . "<br>" . mysqli_error($koneksi);
+            echo "Error Detail: " . mysqli_error($koneksi);
         }
+        mysqli_stmt_close($stmt_detail);
     } else {
-        echo "Error Transaksi: " . $query_transaksi . "<br>" . mysqli_error($koneksi);
+        echo "Error Transaksi: " . mysqli_error($koneksi);
     }
+    
+    mysqli_stmt_close($stmt_harga);
+    mysqli_stmt_close($stmt_transaksi);
 }
 mysqli_close($koneksi);
 ?>

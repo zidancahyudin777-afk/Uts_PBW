@@ -3,18 +3,21 @@ session_start();
 include '../php/koneksi.php';
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = mysqli_real_escape_string($koneksi, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $query = "SELECT * FROM user WHERE username = '$username'";
-    $result = mysqli_query($koneksi, $query);
+    // Gunakan prepared statement untuk mencegah SQL injection
+    $stmt = mysqli_prepare($koneksi, "SELECT * FROM user WHERE username = ?");
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
@@ -23,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['user_id'] = $row['id_user'];
             $_SESSION['username'] = $row['username'];
             $_SESSION['nama_lengkap'] = $row['nama_lengkap'];
-            header("Location: index.php");
+            header("Location: ../index.php");
             exit;
         } else {
             $error = "Password salah!";
@@ -31,6 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $error = "Username tidak ditemukan!";
     }
+    
+    mysqli_stmt_close($stmt);
 }
 ?>
 

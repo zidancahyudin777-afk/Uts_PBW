@@ -24,13 +24,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    $query = "INSERT INTO produk (nama_produk, id_kategori, harga, stok, gambar) VALUES ('$nama_produk', '$id_kategori', '$harga', '$stok', '$gambar')";
+    // Use prepared statement to prevent SQL injection
+    $stmt = mysqli_prepare($koneksi, "INSERT INTO produk (nama_produk, id_kategori, harga, stok, gambar) VALUES (?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "siiis", $nama_produk, $id_kategori, $harga, $stok, $gambar);
 
-    if (mysqli_query($koneksi, $query)) {
-        echo "<script>alert('Data produk berhasil disimpan!'); window.location.href='../php/daftar_produk.php';</script>";
+    if (mysqli_stmt_execute($stmt)) {
+        echo "<script>alert('Data produk berhasil disimpan!'); window.location.href='../produk.php';</script>";
     } else {
-        echo "Error: " . $query . "<br>" . mysqli_error($koneksi);
+        echo "Error: " . mysqli_error($koneksi);
     }
+    
+    mysqli_stmt_close($stmt);
 }
 mysqli_close($koneksi);
 ?>
